@@ -2,6 +2,7 @@ var id;
 var counter = 0;
 var rec_button = document.getElementById("rec-button");
 var stop_button = document.getElementById("stop-button");
+var rec_frag = 0;
 // 録音したデータをサーバーにアップロードする関数
 // 入力：音声（Blob）
 function upload_wav(blob) {
@@ -36,6 +37,7 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 
         //15秒おきに録音したデータをサーバーにアップロード
         rec_button.onclick = function () {
+            rec_frag = 1;
             $("#rec_icon").toggleClass("fas fa-record-vinyl size");
             rec_button.disabled = true;
             stop_button.disabled = false;
@@ -58,6 +60,7 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 
 
         stop_button.onclick = function (e) {
+            rec_frag = 0;
             mediaRecorder.stop();
             $("#rec_icon").toggleClass("fas fa-record-vinyl size");
             clearTimeout(id);
@@ -75,7 +78,9 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             // 音声データを送信できる形式(Blob)に変換
             const blob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });
             chunks = [];
-            upload_wav(blob);
+            if (rec_frag == 1){
+                upload_wav(blob);
+            }
 
             const audioURL = window.URL.createObjectURL(blob);
             document.getElementById("dl").href = audioURL;
